@@ -3,7 +3,7 @@
 etcd_data_dir: /var/lib/etcd
 
 ## Experimental kubeadm etcd deployment mode. Available only for new deployment
-etcd_kubeadm_enabled: false
+etcd_kubeadm_enabled: true
 
 ## Directory where the binaries will be installed
 bin_dir: /usr/local/bin
@@ -18,12 +18,9 @@ bin_dir: /usr/local/bin
 
 ## External LB example config
 ## apiserver_loadbalancer_domain_name: "elb.some.domain"
-# loadbalancer_apiserver:
-#   address: 1.2.3.4
-#   port: 1234
 
 ## Internal loadbalancers for apiservers
-# loadbalancer_apiserver_localhost: true
+loadbalancer_apiserver_localhost: false
 # valid options are "nginx" or "haproxy"
 # loadbalancer_apiserver_type: nginx  # valid values "nginx" or "haproxy"
 
@@ -116,3 +113,4 @@ no_proxy_exclude_workers: false
 
 ## Check if access_ip responds to ping. Set false if your firewall blocks ICMP.
 # ping_access_ip: true
+loadbalancer_config_dir: /etc/kubernetes/loadbalancer

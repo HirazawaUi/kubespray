@@ -66,3 +66,7 @@
   when:
     - inventory_hostname != groups['kube_control_plane']|first
     - kubeadm_already_run is not defined or not kubeadm_already_run.stat.exists
+
+- import_tasks: loadbalancer/keepalived.yml
+
+- import_tasks: loadbalancer/haproxy.yml

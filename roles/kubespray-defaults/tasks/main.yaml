@@ -22,3 +22,10 @@
     - no_proxy is not defined
   tags:
     - always
+
+- name: set loadbalancer_apiserver
+  set_fact:
+    loadbalancer_apiserver:
+      address: "{{ main_vip | default() }}"
+      port: 8443
+  when: groups['kube_control_plane'] | length > 2      

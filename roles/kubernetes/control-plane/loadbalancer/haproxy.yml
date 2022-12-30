@@ -1,0 +1,32 @@
+- name: haproxy | Make haproxy directory
+  file:
+    path: "{{ loadbalancer_config_dir }}"
+    state: directory
+    mode: 0700
+    owner: root
+  when: groups['kube_control_plane'] | length > 2
+
+- name: haproxy | Write haproxy configuration
+  template:
+    src: "loadbalancer/haproxy.cfg.j2"
+    dest: "{{ loadbalancer_config_dir }}/haproxy.cfg"
+    owner: root
+    mode: 0644
+    backup: yes
+  when: groups['kube_control_plane'] | length > 2
+
+- name: haproxy | Get checksum from config
+  stat:
+    path: "{{ loadbalancer_config_dir }}/haproxy.cfg"
+    get_attributes: no
+    get_checksum: yes
+    get_mime: no
+  register: haproxy_stat
+  when: groups['kube_control_plane'] | length > 2
+
+- name: haproxy | Write static pod
+  template:
+    src: loadbalancer/haproxy.manifest.j2
+    dest: "{{ kube_manifest_dir }}/haproxy.yml"
+    mode: 0640
+  when: groups['kube_control_plane'] | length > 2

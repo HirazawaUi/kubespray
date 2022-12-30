@@ -113,6 +113,10 @@
     - kubeadm_already_run.stat.exists
     - apiserver_sans_check.changed
 
+- import_tasks: loadbalancer/keepalived.yml
+
+- import_tasks: loadbalancer/haproxy.yml
+
 - name: kubeadm | regenerate apiserver cert 2/2
   command: >-
     {{ bin_dir }}/kubeadm

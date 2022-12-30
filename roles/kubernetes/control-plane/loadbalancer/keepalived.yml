@@ -1,0 +1,55 @@
+- name: keepalived | Make keepalived directory
+  file:
+    path: "{{ loadbalancer_config_dir }}"
+    state: directory
+    mode: 0700
+    owner: root
+  when: groups['kube_control_plane'] | length > 2
+
+- name: Generate Keepalived Router ID
+  set_fact:
+    keepalived_router_id: "{{ 255 | random }}"
+  when: groups['kube_control_plane'] | length > 2    
+
+- name: Set Keepalived Router ID
+  set_fact:
+    keepalived_router_id: "{{ keepalived_router_id }}"
+  delegate_facts: True
+  delegate_to: "{{ item }}"
+  with_inventory_hostnames:
+    - kube_control_plane
+  when: groups['kube_control_plane'] | length > 2    
+
+- name: keepalived | Write keepalived configuration
+  template:
+    src: "loadbalancer/keepalived.conf.j2"
+    dest: "{{ loadbalancer_config_dir }}/keepalived.conf"
+    owner: root
+    mode: 0644
+    backup: yes
+  when: groups['kube_control_plane'] | length > 2
+
+- name: keepalived | Write keepalived script
+  template:
+    src: "loadbalancer/check-apiserver.sh.j2"
+    dest: "{{ loadbalancer_config_dir }}/check-apiserver.sh"
+    owner: root
+    mode: 0755
+    backup: yes
+  when: groups['kube_control_plane'] | length > 2
+
+- name: keepalived | Get checksum from config
+  stat:
+    path: "{{ loadbalancer_config_dir }}/keepalived.conf"
+    get_attributes: no
+    get_checksum: yes
+    get_mime: no
+  register: keepalived_stat
+  when: groups['kube_control_plane'] | length > 2
+
+- name: keepalived | Write static pod
+  template:
+    src: loadbalancer/keepalived.manifest.j2
+    dest: "{{ kube_manifest_dir }}/keepalived.yml"
+    mode: 0640
+  when: groups['kube_control_plane'] | length > 2
