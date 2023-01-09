@@ -10,7 +10,7 @@
   environment: "{{ proxy_disable_env }}"
   roles:
     - { role: kubespray-defaults }
-    - { role: bastion-ssh-config, tags: ["localhost", "bastion"] }
+    - { role: bastion-ssh-config, tags: ["localhost", "bastion"], when: kubernetes_deployment_type == 'kubespray'   }
 
 - hosts: k8s_cluster:etcd
   strategy: linear
@@ -18,8 +18,8 @@
   gather_facts: false
   environment: "{{ proxy_disable_env }}"
   roles:
-    - { role: kubespray-defaults }
-    - { role: bootstrap-os, tags: bootstrap-os}
+    - { role: kubespray-defaults, when: kubernetes_deployment_type == 'kubespray'   }
+    - { role: bootstrap-os, tags: bootstrap-os, when: kubernetes_deployment_type == 'kubespray'  }
 
 - name: Gather facts
   tags: always
@@ -32,8 +32,8 @@
   roles:
     - { role: kubespray-defaults }
     - { role: kubernetes/preinstall, tags: preinstall }
-    - { role: "container-engine", tags: "container-engine", when: deploy_container_engine|default(true) }
-    - { role: download, tags: download, when: "not skip_downloads" }
+    - { role: "container-engine", tags: "container-engine", when: "deploy_container_engine|default(true) and kubernetes_deployment_type == 'kubespray'"}
+    - { role: download, tags: download, when: "not skip_downloads", when: kubernetes_deployment_type == 'kubespray'   }
 
 - hosts: etcd
   gather_facts: False
@@ -46,7 +46,7 @@
       vars:
         etcd_cluster_setup: true
         etcd_events_cluster_setup: "{{ etcd_events_cluster_enabled }}"
-      when: not etcd_kubeadm_enabled| default(false)
+      when: "not etcd_kubeadm_enabled| default(false) and kubernetes_deployment_type == 'kubespray'"
 
 - hosts: k8s_cluster
   gather_facts: False
@@ -59,64 +59,64 @@
       vars:
         etcd_cluster_setup: false
         etcd_events_cluster_setup: false
-      when: not etcd_kubeadm_enabled| default(false)
+      when: "not etcd_kubeadm_enabled| default(false) and kubernetes_deployment_type == 'kubespray'"
 
 - hosts: k8s_cluster
   gather_facts: False
   any_errors_fatal: "{{ any_errors_fatal | default(true) }}"
   environment: "{{ proxy_disable_env }}"
   roles:
-    - { role: kubespray-defaults }
-    - { role: kubernetes/node, tags: node }
+    - { role: kubespray-defaults, when: kubernetes_deployment_type == 'kubespray'   }
+    - { role: kubernetes/node, tags: node, when: kubernetes_deployment_type == 'kubespray'   }
 
 - hosts: kube_control_plane
   gather_facts: False
   any_errors_fatal: "{{ any_errors_fatal | default(true) }}"
   environment: "{{ proxy_disable_env }}"
   roles:
-    - { role: kubespray-defaults }
-    - { role: kubernetes/control-plane, tags: master }
-    - { role: kubernetes/client, tags: client }
-    - { role: kubernetes-apps/cluster_roles, tags: cluster-roles }
+    - { role: kubespray-defaults, when: kubernetes_deployment_type == 'kubespray'   }
+    - { role: kubernetes/control-plane, tags: master, when: kubernetes_deployment_type == 'kubespray'   }
+    - { role: kubernetes/client, tags: client, when: kubernetes_deployment_type == 'kubespray'   }
+    - { role: kubernetes-apps/cluster_roles, tags: cluster-roles, when: kubernetes_deployment_type == 'kubespray'   }
 
 - hosts: k8s_cluster
   gather_facts: False
   any_errors_fatal: "{{ any_errors_fatal | default(true) }}"
   environment: "{{ proxy_disable_env }}"
   roles:
-    - { role: kubespray-defaults }
-    - { role: kubernetes/kubeadm, tags: kubeadm}
-    - { role: kubernetes/node-label, tags: node-label }
-    - { role: network_plugin, tags: network }
+    - { role: kubespray-defaults, when: kubernetes_deployment_type == 'kubespray'   }
+    - { role: kubernetes/kubeadm, tags: kubeadm, when: kubernetes_deployment_type == 'kubespray'  }
+    - { role: kubernetes/node-label, tags: node-label, when: kubernetes_deployment_type == 'kubespray'   }
+    - { role: network_plugin, tags: network, when: kubernetes_deployment_type == 'kubespray'   }
 
 - hosts: calico_rr
   gather_facts: False
   any_errors_fatal: "{{ any_errors_fatal | default(true) }}"
   environment: "{{ proxy_disable_env }}"
   roles:
-    - { role: kubespray-defaults }
-    - { role: network_plugin/calico/rr, tags: ['network', 'calico_rr'] }
+    - { role: kubespray-defaults, when: kubernetes_deployment_type == 'kubespray'   }
+    - { role: network_plugin/calico/rr, tags: ['network', 'calico_rr'], when: kubernetes_deployment_type == 'kubespray'   }
 
 - hosts: kube_control_plane[0]
   gather_facts: False
   any_errors_fatal: "{{ any_errors_fatal | default(true) }}"
   environment: "{{ proxy_disable_env }}"
   roles:
-    - { role: kubespray-defaults }
-    - { role: win_nodes/kubernetes_patch, tags: ["master", "win_nodes"] }
+    - { role: kubespray-defaults, when: kubernetes_deployment_type == 'kubespray'   }
+    - { role: win_nodes/kubernetes_patch, tags: ["master", "win_nodes"], when: kubernetes_deployment_type == 'kubespray'   }
 
 - hosts: kube_control_plane
   gather_facts: False
   any_errors_fatal: "{{ any_errors_fatal | default(true) }}"
   environment: "{{ proxy_disable_env }}"
   roles:
-    - { role: kubespray-defaults }
-    - { role: kubernetes-apps/external_cloud_controller, tags: external-cloud-controller }
-    - { role: kubernetes-apps/network_plugin, tags: network }
-    - { role: kubernetes-apps/policy_controller, tags: policy-controller }
-    - { role: kubernetes-apps/ingress_controller, tags: ingress-controller }
-    - { role: kubernetes-apps/external_provisioner, tags: external-provisioner }
-    - { role: kubernetes-apps, tags: apps }
+    - { role: kubespray-defaults, when: kubernetes_deployment_type == 'kubespray'   }
+    - { role: kubernetes-apps/external_cloud_controller, tags: external-cloud-controller, when: kubernetes_deployment_type == 'kubespray'   }
+    - { role: kubernetes-apps/network_plugin, tags: network, when: kubernetes_deployment_type == 'kubespray'   }
+    - { role: kubernetes-apps/policy_controller, tags: policy-controller, when: kubernetes_deployment_type == 'kubespray'   }
+    - { role: kubernetes-apps/ingress_controller, tags: ingress-controller, when: kubernetes_deployment_type == 'kubespray'   }
+    - { role: kubernetes-apps/external_provisioner, tags: external-provisioner, when: kubernetes_deployment_type == 'kubespray'   }
+    - { role: kubernetes-apps, tags: apps, when: kubernetes_deployment_type == 'kubespray'   }
 
 - hosts: k8s_cluster
   gather_facts: False
@@ -124,4 +124,4 @@
   environment: "{{ proxy_disable_env }}"
   roles:
     - { role: kubespray-defaults }
-    - { role: kubernetes/preinstall, when: "dns_mode != 'none' and resolvconf_mode == 'host_resolvconf'", tags: resolvconf, dns_late: true }
+    - { role: kubernetes/preinstall, when: "dns_mode != 'none' and resolvconf_mode == 'host_resolvconf' and kubernetes_deployment_type == 'kubespray'", tags: resolvconf, dns_late: true }
