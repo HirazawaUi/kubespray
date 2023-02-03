@@ -29,3 +29,4 @@
       address: "{{ apiserver_vip | default() }}"
       port: 8443
   when: groups['kube_control_plane'] | length > 2      
+  ignore_errors: true

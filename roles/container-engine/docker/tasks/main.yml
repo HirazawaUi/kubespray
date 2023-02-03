@@ -172,6 +172,9 @@
 - name: Set docker systemd config
   import_tasks: systemd.yml
 
+- name: Configure container runtime configuration
+  import_tasks: docker-configuration.yml
+
 - name: ensure docker service is started and enabled
   service:
     name: "{{ item }}"

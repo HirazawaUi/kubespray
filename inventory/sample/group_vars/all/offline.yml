@@ -1,11 +1,11 @@
 # Registry overrides
 
-registry_host: "{{ registry_host }}"
+registry_host: "{{ global_registry }}"
 
-kube_image_repo: "{{ registry_host }}/google_containers"
-gcr_image_repo: "{{ registry_host }}"
-docker_image_repo: "{{ registry_host }}/dockerhub_containers"
-quay_image_repo: "{{ registry_host }}/quay_containers"
+kube_image_repo: "{{ global_registry }}/google_containers"
+gcr_image_repo: "{{ global_registry }}"
+docker_image_repo: "{{ global_registry }}/dockerhub_containers"
+quay_image_repo: "{{ global_registry }}/quay_containers"
 
 kubeadm_download_url: "{{ files_repo }}/kubernetes/{{ kube_version }}/kubeadm"
 kubectl_download_url: "{{ files_repo }}/kubernetes/{{ kube_version }}/kubectl"

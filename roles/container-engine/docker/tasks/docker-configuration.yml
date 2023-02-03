@@ -1,0 +1,9 @@
+- name: Create docker config directory
+  file:
+    path: /etc/docker
+    state: directory
+
+- name: Apply docker daemon configuration
+  template: src="docker.json.j2" dest=/etc/docker/daemon.json
+  notify:
+    - restart docker

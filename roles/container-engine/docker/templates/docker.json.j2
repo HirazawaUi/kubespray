@@ -1,0 +1,15 @@
+{
+{% if install_registry is defined %}    
+  "insecure-registries": ["127.0.0.1:5001", "{{ global_registry }}", "{{ install_registry }}"],
+{% endif %}
+{% if install_registry is undefined %}      
+  "insecure-registries": ["127.0.0.1:5001", "{{ global_registry }}"],
+{% endif %}  
+  "bip": "172.18.18.1/24",
+  "data-root": "/var/lib/docker",
+  "storage-driver": "overlay2",
+  "live-restore": true,
+  "log-opts": {
+    "max-size": "500m"
+  }
+}

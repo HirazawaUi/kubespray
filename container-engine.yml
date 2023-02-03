@@ -1,0 +1,7 @@
+- hosts: oo_not_in_k8s_cluster_hosts
+  gather_facts: False
+  any_errors_fatal: "{{ any_errors_fatal | default(true) }}"
+  environment: "{{ proxy_disable_env }}"
+  roles:
+    - { role: kubespray-defaults }
+    - { role: "container-engine", tags: "container-engine" }
